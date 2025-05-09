@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Endereçamento de Armazenagem</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 30px;
+      background-color: #f8f9fa;
+    }
+    h1 {
+      text-align: center;
+      color: #343a40;
+    }
+    .form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input[type="text"], input[type="number"] {
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px 0 0;
+      font-size: 14px;
+    }
+    .btn:hover {
+      background-color: #218838;
+    }
+    .card {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .btn-remove {
+      background-color: #dc3545;
+    }
+    .btn-remove:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Endereçamento de Armazenagem</h1>
+
+  <div class="form">
+    <input id="item" type="text" placeholder="Item" />
+    <input id="descricao" type="text" placeholder="Descrição" />
+    <input id="quantidade" type="number" placeholder="Quantidade" />
+    <input id="unidade" type="text" placeholder="Unidade" />
+    <input id="custoUnit" type="number" placeholder="Custo Unitário" />
+    <input id="custoTotal" type="number" placeholder="Custo Total" />
+    <input id="estoque" type="text" placeholder="Estoque" />
+    <input id="tipo" type="text" placeholder="Tipo" />
+    <input id="endereco" type="text" placeholder="Endereço" />
+  </div>
+
+  <button class="btn" onclick="addItem()">Adicionar</button>
+  <button class="btn" onclick="filtrar()">Filtrar</button>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Descrição</th>
+          <th>Quantidade</th>
+          <th>Unidade</th>
+          <th>Custo Unit.</th>
+          <th>Custo Total</th>
+          <th>Estoque</th>
+          <th>Tipo</th>
+          <th>Endereço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-corpo">
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const tabela = document.getElementById('tabela-corpo');
+
+    function getData() {
+      return JSON.parse(localStorage.getItem('estoque') || '[]');
+    }
+
+    function setData(data) {
+      localStorage.setItem('estoque', JSON.stringify(data));
+    }
+
+    function renderTable(data = getData()) {
+      tabela.innerHTML = '';
+      data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.item}</td>
+          <td>${item.descricao}</td>
+          <td>${parseFloat(item.quantidade).toFixed(2)}</td>
+          <td>${item.unidade}</td>
+          <td>${parseFloat(item.custoUnit).toFixed(2)}</td>
+          <td>${parseFloat(item.custoTotal).toFixed(2)}</td>
+          <td>${item.estoque}</td>
+          <td>${item.tipo}</td>
+          <td>${item.endereco}</td>
+          <td><button class="btn btn-remove" onclick="removerItem(${index})">Remover</button></td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    function addItem() {
+      const item = {
+        item: document.getElementById('item').value,
+        descricao: document.getElementById('descricao').value,
+        quantidade: document.getElementById('quantidade').value,
+        unidade: document.getElementById('unidade').value,
+        custoUnit: document.getElementById('custoUnit').value,
+        custoTotal: document.getElementById('custoTotal').value,
+        estoque: document.getElementById('estoque').value,
+        tipo: document.getElementById('tipo').value,
+        endereco: document.getElementById('endereco').value
+      };
+
+      const data = getData();
+      data.push(item);
+      setData(data);
+      renderTable();
+    }
+
+    function filtrar() {
+      const termo = document.getElementById('item').value.toLowerCase();
+      const data = getData();
+      const filtrado = data.filter(i => i.item.toLowerCase().includes(termo));
+      renderTable(filtrado);
+    }
+
+    // Função para remover um item com base no índice
+    function removerItem(index) {
+      const data = getData();
+      data.splice(index, 1); // Remove o item do array
+      setData(data); // Atualiza o armazenamento
+      renderTable(); // Re-renderiza a tabela
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
